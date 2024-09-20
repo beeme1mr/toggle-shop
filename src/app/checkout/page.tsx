@@ -7,8 +7,11 @@ import Image from "next/image";
 import { ArrowLeft, Minus, Plus, X } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import Header from "@/components/Header";
+import { useOpenFeatureClient } from "@openfeature/react-sdk";
 
 export default function Checkout() {
+
+  const client = useOpenFeatureClient();
   const router = useRouter();
   const { cartItems, removeFromCart, clearCart, updateQuantity } = useCart();
   const [formData, setFormData] = useState({
@@ -41,6 +44,7 @@ export default function Checkout() {
       if (!response.ok) {
         throw new Error("Failed to submit order");
       }
+      client.track('conversion', { value: totalPrice });
       clearCart();
       router.push("/order-success");
     } catch (error) {
