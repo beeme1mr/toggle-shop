@@ -10,6 +10,7 @@ import { OFREPWebProvider } from "@openfeature/ofrep-web-provider";
 OpenFeature.setProvider(
   new OFREPWebProvider({
     baseUrl: "http://localhost:3000/api",
+    pollInterval: 5000,
   })
 );
 

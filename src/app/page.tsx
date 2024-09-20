@@ -11,8 +11,7 @@ import Banner from "@/components/Banner";
 import { useFlag } from "@openfeature/react-sdk";
 
 export default function Home() {
-  const { value: showBanner } = useFlag("show-landing-page-banner", false);
-  // console.log("showBanner", showBanner);
+  const landingPageBanner = useFlag("show-landing-page-banner", false);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -66,7 +65,7 @@ export default function Home() {
           />
         </div>
       </div>
-      {showBanner ? (
+      {landingPageBanner.value ? (
         <Banner mobileMessage="Free shipping on all orders" />
       ) : null}
       <main>

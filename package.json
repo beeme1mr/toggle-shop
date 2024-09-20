@@ -17,12 +17,14 @@
     "@tanstack/react-query": "^5.56.2",
     "lucide-react": "^0.441.0",
     "next": "14.2.12",
+    "object-hash": "^3.0.0",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.56.1",
     "@types/node": "^20",
+    "@types/object-hash": "^3.0.6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
