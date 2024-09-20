@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
@@ -6,8 +8,12 @@ import { Suspense } from "react";
 import ProductGrid from "@/components/ProductGrid";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 import Banner from "@/components/Banner";
+import { useFlag } from "@openfeature/react-sdk";
 
 export default function Home() {
+  const { value: showBanner } = useFlag("show-landing-page-banner", false);
+  // console.log("showBanner", showBanner);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -60,7 +66,9 @@ export default function Home() {
           />
         </div>
       </div>
-      <Banner mobileMessage="Free shipping on all orders" />
+      {showBanner ? (
+        <Banner mobileMessage="Free shipping on all orders" />
+      ) : null}
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
