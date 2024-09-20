@@ -16,6 +16,6 @@ export async function POST(request: Request) {
   // Simulate network delay
   // await new Promise((resolve) => setTimeout(resolve, 1000));
   return NextResponse.json({
-    flags: [{ key: "show-landing-page-banner", value: true }],
+    flags: [{ key: "show-landing-page-banner", value: false }],
   });
 }
