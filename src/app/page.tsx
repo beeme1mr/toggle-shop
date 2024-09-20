@@ -56,7 +56,7 @@ export default function Home() {
             src="/placeholder.svg"
             width={800}
             height={600}
-            alt="Tech gadgets collection"
+            alt="Toggles"
           />
         </div>
       </div>
