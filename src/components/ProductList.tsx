@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useProducts } from "@/hooks/use-products";
 
-export async function ProductList() {
+export function ProductList() {
   const products = useProducts();
 
   return (

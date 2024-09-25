@@ -1,13 +1,27 @@
 import { FlagdCore } from "@openfeature/flagd-core";
-import { promises as fs } from "node:fs";
+import { readFileSync, watchFile, promises as fsPromises } from "node:fs";
 import hash from "object-hash";
 
 const flagdCore = new FlagdCore();
 
+const filename = process.cwd() + "/flags.json";
+const encoding = "utf8";
+
+const flagConfig = readFileSync(filename, encoding);
+flagdCore.setConfigurations(flagConfig);
+
+watchFile(filename, async () => {
+  console.log("File changed");
+  try {
+    const flagConfig = await fsPromises.readFile(filename, encoding);
+    flagdCore.setConfigurations(flagConfig);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 export async function POST(request: Request) {
-  const file = await fs.readFile(process.cwd() + "/flags.json", "utf8");
   const context = await request.json();
-  flagdCore.setConfigurations(file);
 
   // We have to map these names to be compatible with OFREP
   const flags = flagdCore

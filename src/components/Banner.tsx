@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 interface BannerProps {
@@ -12,7 +14,7 @@ export default function Banner({
   learnMoreHref,
 }: BannerProps) {
   return (
-    <div className="bg-yellow-400 text-gray-900">
+    <div className={"bg-yellow-400 text-gray-900"}>
       <div className="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between flex-wrap">
           <div className="w-0 flex-1 flex items-center">

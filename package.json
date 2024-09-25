@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
     "@openfeature/flagd-core": "^0.2.5",
     "@openfeature/flagd-provider": "^0.13.1",
     "@openfeature/ofrep-web-provider": "^0.3.1",
-    "@openfeature/react-sdk": "^0.4.5",
+    "@openfeature/react-sdk": "^0.4.6",
     "@openfeature/server-sdk": "^1.15.1",
+    "@opentelemetry/exporter-logs-otlp-proto": "^0.53.0",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.53.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.53.0",
     "@tanstack/react-query": "^5.56.2",
+    "@vercel/otel": "^1.10.0",
     "lucide-react": "^0.441.0",
     "next": "14.2.12",
     "object-hash": "^3.0.0",

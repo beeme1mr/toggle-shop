@@ -8,10 +8,17 @@ import { Suspense } from "react";
 import ProductGrid from "@/components/ProductGrid";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 import Banner from "@/components/Banner";
-import { useFlag } from "@openfeature/react-sdk";
+import heroImage from "../../public/img/hero.jpg";
+
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useSuspenseFlag } from "@openfeature/react-sdk";
 
 export default function Home() {
-  const landingPageBanner = useFlag("show-landing-page-banner", false);
+  const [parent] = useAutoAnimate();
+  const { value: showBanner } = useSuspenseFlag(
+    "show-landing-page-banner",
+    false
+  );
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -55,19 +62,18 @@ export default function Home() {
             </main>
           </div>
         </div>
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+        <div className="hidden lg:block lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
           <Image
-            className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-            src="/img/placeholder.svg"
-            width={800}
-            height={600}
+            className="h-56 w-full object-cover lg:w-full lg:h-full"
+            style={{ clipPath: "polygon(8% 0, 100% 0%, 100% 100%, 0 100%)" }}
+            src={heroImage}
             alt="Toggles"
           />
         </div>
       </div>
-      {landingPageBanner.value ? (
-        <Banner mobileMessage="Free shipping on all orders" />
-      ) : null}
+      <div ref={parent}>
+        {showBanner && <Banner mobileMessage="Free shipping on all orders" />}
+      </div>
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
