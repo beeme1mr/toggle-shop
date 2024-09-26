@@ -15,7 +15,7 @@ import { useSuspenseFlag } from "@openfeature/react-sdk";
 
 export default function Home() {
   const [parent] = useAutoAnimate();
-  const { value: showBanner } = useSuspenseFlag(
+  const { value: showBanner, isAuthoritative } = useSuspenseFlag(
     "show-landing-page-banner",
     false
   );
@@ -72,7 +72,9 @@ export default function Home() {
         </div>
       </div>
       <div ref={parent}>
-        {showBanner && <Banner mobileMessage="Free shipping on all orders" />}
+        {isAuthoritative && showBanner && (
+          <Banner mobileMessage="Free shipping on all orders" />
+        )}
       </div>
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">

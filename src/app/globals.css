@@ -23,17 +23,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.bg-pattern {
-  background-color: #4f46e5;
-  opacity: 1;
-  background-image:
-    radial-gradient(circle at 100% 150%, #4f46e5 24%, #818cf8 24%, #818cf8 28%, #4f46e5 28%, #4f46e5 36%, #818cf8 36%, #818cf8 40%, transparent 40%, transparent),
-    radial-gradient(circle at 0 150%, #4f46e5 24%, #818cf8 24%, #818cf8 28%, #4f46e5 28%, #4f46e5 36%, #818cf8 36%, #818cf8 40%, transparent 40%, transparent),
-    radial-gradient(circle at 50% 100%, #818cf8 10%, #4f46e5 10%, #4f46e5 23%, #818cf8 23%, #818cf8 30%, #4f46e5 30%, #4f46e5 43%, #818cf8 43%, #818cf8 50%, #4f46e5 50%, #4f46e5 63%, #818cf8 63%, #818cf8 71%, transparent 71%, transparent),
-    radial-gradient(circle at 100% 50%, #818cf8 5%, #4f46e5 5%, #4f46e5 15%, #818cf8 15%, #818cf8 20%, #4f46e5 20%, #4f46e5 29%, #818cf8 29%, #818cf8 34%, #4f46e5 34%, #4f46e5 44%, #818cf8 44%, #818cf8 49%, transparent 49%, transparent),
-    radial-gradient(circle at 0 50%, #818cf8 5%, #4f46e5 5%, #4f46e5 15%, #818cf8 15%, #818cf8 20%, #4f46e5 20%, #4f46e5 29%, #818cf8 29%, #818cf8 34%, #4f46e5 34%, #4f46e5 44%, #818cf8 44%, #818cf8 49%, transparent 49%, transparent);
-  background-size: 100px 50px;
-}
 @layer utilities {
   .text-balance {
     text-wrap: balance;

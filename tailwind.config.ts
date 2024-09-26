@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import type { PluginAPI } from "tailwindcss/types/config";
 
 const config: Config = {
   content: [
@@ -14,6 +15,14 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addBase, theme }: PluginAPI) {
+      addBase({
+        "input, textarea, select": {
+          color: theme("colors.gray.600"),
+        },
+      });
+    },
+  ],
 };
 export default config;

@@ -8,7 +8,7 @@ export default function About() {
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            About TechGear
+            About ToggleShop
           </h1>
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
@@ -21,7 +21,7 @@ export default function About() {
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Founded</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    2023
+                    2024
                   </dd>
                 </div>
                 <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -36,7 +36,7 @@ export default function About() {
                     Headquarters
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    San Francisco, California
+                    Detroit, Michigan
                   </dd>
                 </div>
               </dl>
@@ -50,13 +50,13 @@ export default function About() {
             </div>
             <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
               <p className="text-sm text-gray-500">
-                At TechGear, we&apos;re committed to bringing you the latest and
-                greatest in technology. Our team of experts carefully curates
-                each product in our inventory to ensure it meets our high
-                standards for quality, innovation, and user experience. We
-                believe that technology should make your life easier and more
+                At ToggleShope, we&apos;re committed to bringing you the latest
+                and greatest in toggle technology. Our team of experts carefully
+                curates each product in our inventory to ensure it meets our
+                high standards for quality, innovation, and user experience. We
+                believe that toggles should make your life easier and more
                 enjoyable, and we&apos;re here to help you find the perfect
-                gadgets to do just that.
+                toggle (or switch) to do just that.
               </p>
             </div>
           </div>

@@ -107,7 +107,7 @@ export default function Contact() {
                 <div className="sm:col-span-1">
                   <dt className="text-sm font-medium text-gray-500">Email</dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    support@techgear.com
+                    support@toggletown.com
                   </dd>
                 </div>
                 <div className="sm:col-span-1">
@@ -119,9 +119,9 @@ export default function Contact() {
                 <div className="sm:col-span-1">
                   <dt className="text-sm font-medium text-gray-500">Address</dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    123 Tech Street
+                    01 Toggle Town
                     <br />
-                    San Francisco, CA 94105
+                    Detroit, MI 48226
                     <br />
                     United States
                   </dd>
