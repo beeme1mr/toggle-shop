@@ -1,7 +1,9 @@
-# Welcome to ToggleSHop
+# Welcome to ToggleShop
 
 This is a silly e-commerce demo app called ToggleShop.
 The purpose of the demo is to experiment with new OpenFeature functionality in an app that mimics real-world use cases.
+
+![ToggleShop screenshot](./public/img/screenshot.png)
 
 ## Getting Started
 
@@ -73,4 +75,4 @@ To simulate the migration yourself, follow these steps:
 
 If all goes well, you should see the migration complete without any issues.
 
-![telemetry](./public/telemetry.png)
+![telemetry](./public/img/telemetry.png)
