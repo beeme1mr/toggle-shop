@@ -1,13 +1,35 @@
 {
   "$schema": "https://flagd.dev/schema/v0/flags.json",
   "flags": {
-    "show-landing-page-banner": {
+    "offer-free-shipping": {
       "state": "ENABLED",
-      "defaultVariant": "false",
       "variants": {
         "true": true,
         "false": false
-      }
+      },
+      "defaultVariant": "true"
+    },
+    "use-distributed-db": {
+      "state": "ENABLED",
+      "variants": {
+        "true": true,
+        "false": false
+      },
+      "targeting": {
+        "fractional": [
+          ["true", 0],
+          ["false", 100]
+        ]
+      },
+      "defaultVariant": "false"
+    },
+    "use-secure-protocol": {
+      "state": "ENABLED",
+      "variants": {
+        "true": true,
+        "false": false
+      },
+      "defaultVariant": "false"
     }
   }
 }

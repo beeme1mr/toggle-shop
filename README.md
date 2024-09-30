@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Welcome to ToggleSHop
+
+This is a silly e-commerce demo app called ToggleShop.
+The purpose of the demo is to experiment with new OpenFeature functionality in an app that mimics real-world use cases.
 
 ## Getting Started
 
-First, run the development server:
+The demo app is completely self-contained but can be configured to send telemetry to an [OTLP](https://opentelemetry.io/docs/specs/otel/protocol/) compatible endpoint.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Follow these steps to get up and running:
+
+1. install dependencies: `npm install`
+2. configure OTLP export (optional):
+   1. copy env: `cp .env.example .env.local
+   2. update `.env.local` with OTLP information
+3. start the app: `npm run dev`
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Feature Flags
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+ToggleShop leverages a number of feature flags for various technical and business-related use cases.
 
-## Learn More
+| Feature Flag        | Type    | Default Variant | Variants    |
+| ------------------- | ------- | --------------- | ----------- |
+| offer-free-shipping | boolean | true            | true, false |
+| use-distributed-db  | boolean | false           | true, false |
+| use-secure-protocol | boolean | false           | true, false |
 
-To learn more about Next.js, take a look at the following resources:
+> The flag configuration can be found [here](./flags.json).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Free Shipping
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The `offer-free-shipping` flag controls a banner on the landing page that teases free shipping on orders over $50.
+The flag is also used on the checkout page to calculate the total cost.
+The purpose of this flag is to demo using a client-side feature flag with the React SDK.
+It's also pairs nicely with the event tracking to calculate the business impact.
 
-## Deploy on Vercel
+### Distributed DB
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The `use-distributed-db` flag controls which database is used to fetch the list of products.
+The databases themselves are mocked for simplicity and have the following characteristics.
+The SQLite database offers low latency but do not support concurrent access.
+The Postgres database is the inverse.
+It offers slightly higher latency but supports concurrent requests.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Secure Protocol
+
+The `use-secure-protocol` flag is only evaluated when `use-distributed-db` is set to `true`.
+It simulates a connection issue with one of the four nodes.
+
+## Scenarios
+
+### Database Migration
+
+The ToggleShop team has noticed that SQLite isn't able to keep up with demand.
+To remedy the situation, they've decided to switch to Postgres.
+A feature flag is used to ensure a smooth transition.
+
+To simulate the migration yourself, follow these steps:
+
+- configure OTLP export (see getting started)
+- start the load generator: `make run-db-migration`
+- observe the logs and metrics
+- update the `use-distributed-db` flag fractional distribution to be `["true", 25]` and `["false", 75]` in the [flags.json](./flags.json).
+- observe the logs and metrics.
+- update the `use-distributed-db` flag fractional distribution to be `["true", 50]` and `["false", 50]` in the [flags.json](./flags.json).
+- observe the logs and metrics.
+- update the `use-distributed-db` flag fractional distribution to be `["true", 75]` and `["false", 25]` in the [flags.json](./flags.json).
+- observe the logs and metrics.
+- update the `use-distributed-db` flag fractional distribution to be `["true", 100]` and `["false", 0]` in the [flags.json](./flags.json).
+- observe the logs and metrics.
+
+If all goes well, you should see the migration complete without any issues.
+
+![telemetry](./public/telemetry.png)

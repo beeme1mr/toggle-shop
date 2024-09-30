@@ -5,12 +5,11 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import Header from "@/components/Header";
-import { useProducts } from "@/hooks/use-products";
+import { useProduct } from "@/hooks/use-products";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const { addToCart } = useCart();
-  const products = useProducts();
-  const product = products.find((p) => p.id === parseInt(params.id));
+  const product = useProduct(params.id);
 
   if (!product) {
     return <div>Product not found</div>;

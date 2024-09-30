@@ -7,54 +7,68 @@ import Image from "next/image";
 import { ArrowLeft, ArrowRight, Minus, Plus, X } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import Header from "@/components/Header";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { tanstackMetaToHeader } from "@/libs/open-feature/evaluation-context";
+import { useSuspenseFlag } from "@openfeature/react-sdk";
 
 export default function Checkout() {
   const router = useRouter();
   const { cartItems, removeFromCart, clearCart, updateQuantity } = useCart();
+  // This should be validated server-side in a real app
+  const { value: freeShipping, isAuthoritative } = useSuspenseFlag(
+    "offer-free-shipping",
+    false
+  );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     address: "",
     card: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      // TODO move to tanstack
-      const response = await fetch("/api/orders", {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: () => {
+      return fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...tanstackMetaToHeader(
+            queryClient.getDefaultOptions().mutations?.meta
+          ),
         },
         body: JSON.stringify({
           items: cartItems,
           customerInfo: formData,
         }),
       });
-      if (!response.ok) {
-        throw new Error("Failed to submit order");
-      }
-      clearCart();
-      router.push("/order-success");
-    } catch (error) {
+    },
+    onError(error) {
       console.error("Error submitting order:", error);
       alert("There was an error submitting your order. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    },
+    onSuccess() {
+      router.push("/order-success");
+      clearCart();
+    },
+  });
 
-  const totalPrice = cartItems.reduce(
+  const cartPrices = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
+  const shippingPrice =
+    freeShipping && isAuthoritative && cartPrices > 50 ? 0 : 10;
+  const totalPrice = cartPrices + shippingPrice;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate();
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -128,7 +142,7 @@ export default function Checkout() {
                           >
                             <Minus className="h-4 w-4" />
                           </button>
-                          <span className="mx-2 w-8 text-center">
+                          <span className="mx-2 w-8 text-center text-gray-400 font-bold">
                             {item.quantity}
                           </span>
                           <button
@@ -151,7 +165,10 @@ export default function Checkout() {
                       </div>
                     ))}
                   </div>
-                  <div className="text-xl font-bold text-right">
+                  <div className="text-l font-bold text-right text-gray-400">
+                    Shipping: ${shippingPrice.toFixed(2)}
+                  </div>
+                  <div className="text-xl font-bold text-right text-gray-400">
                     Total: ${totalPrice.toFixed(2)}
                   </div>
                 </div>
@@ -228,9 +245,9 @@ export default function Checkout() {
                     <button
                       type="submit"
                       className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:bg-slate-100 disabled:text-slate-300"
-                      disabled={cartItems.length === 0 || isSubmitting}
+                      disabled={cartItems.length === 0 || mutation.isPending}
                     >
-                      {isSubmitting ? "Placing Order..." : "Place Order"}
+                      {mutation.isPending ? "Placing Order..." : "Place Order"}
                     </button>
                   </div>
                 </form>
