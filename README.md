@@ -13,7 +13,7 @@ Follow these steps to get up and running:
 
 1. install dependencies: `npm install`
 2. configure OTLP export (optional):
-   1. copy env: `cp .env.example .env.local
+   1. copy env: `cp .env.example .env.local`
    2. update `.env.local` with OTLP information
 3. start the app: `npm run dev`
 
