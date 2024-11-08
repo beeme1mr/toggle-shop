@@ -1,0 +1,169 @@
+# Flags for our UI
+apiVersion: core.openfeature.dev/v1beta1
+kind: FeatureFlag
+metadata:
+  name: ui-flags
+  labels:
+    app: toggle-shop
+spec:
+  flagSpec:
+    flags:
+      offer-free-shipping:
+        state: ENABLED
+        variants:
+          'on': true
+          'off': false
+        defaultVariant: 'on'
+---
+# Flags for our backend application
+apiVersion: core.openfeature.dev/v1beta1
+kind: FeatureFlag
+metadata:
+  name: app-flags
+  labels:
+    app: toggle-shop
+spec:
+  flagSpec:
+    flags:
+      use-distributed-db:
+        state: ENABLED
+        variants:
+          'on': true
+          'off': false
+        defaultVariant: 'off'
+      use-secure-protocol:
+        state: ENABLED
+        variants:
+          'on': true
+          'off': false
+        defaultVariant: 'off'
+---
+# Feature flag source custom resource, configuring flagd to source flags from FeatureFlag CRDs
+apiVersion: core.openfeature.dev/v1beta1
+kind: FeatureFlagSource
+metadata:
+  name: ui-flag-source
+  labels:
+    app: toggle-shop
+spec:
+  sources:
+    - source: ui-flags
+      provider: kubernetes
+---
+# Feature flag source custom resource, configuring flagd to source flags from FeatureFlag CRDs
+apiVersion: core.openfeature.dev/v1beta1
+kind: FeatureFlagSource
+metadata:
+  name: app-flag-source
+  labels:
+    app: toggle-shop
+spec:
+  sources:
+    - source: app-flags
+      provider: kubernetes
+---
+# Standalone flagd for serving UI
+apiVersion: core.openfeature.dev/v1beta1
+kind: Flagd
+metadata:
+  name: flagd-ui
+spec:
+  replicas: 1
+  serviceAccountName: default
+  featureFlagSource: ui-flag-source
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/use-regex: 'true'
+      nginx.ingress.kubernetes.io/rewrite-target: /ofrep/$1
+      nginx.ingress.kubernetes.io/force-ssl-redirect: 'false'
+    hosts:
+      - localhost
+      - ''
+    ingressClassName: nginx
+    pathType: ImplementationSpecific
+    ofrepPath: /api/ofrep/(.*)
+---
+# Standalone flagd for serving in-process provider
+apiVersion: core.openfeature.dev/v1beta1
+kind: Flagd
+metadata:
+  name: flagd-in-process
+spec:
+  replicas: 1
+  serviceType: ClusterIP
+  serviceAccountName: default
+  featureFlagSource: app-flag-source
+---
+# In-process provider configuration
+apiVersion: core.openfeature.dev/v1beta1
+kind: InProcessConfiguration
+metadata:
+  name: in-process-config
+spec:
+  host: flagd-in-process
+---
+# Deployment for our application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toggle-shop-deployment
+  labels:
+    app: toggle-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: toggle-shop
+  template:
+    metadata:
+      labels:
+        app: toggle-shop
+      annotations:
+        openfeature.dev/enabled: 'true'
+        openfeature.dev/inprocessconfiguration: 'in-process-config'
+    spec:
+      containers:
+        - name: toggle-shop
+          image: ghcr.io/open-feature/toggle-shop:main # x-release-please-version
+          ports:
+            - containerPort: 3000
+              name: app-port
+          env:
+            - name: FLAGD_HOST
+              value: flagd-in-process
+---
+# Service to expose our application
+apiVersion: v1
+kind: Service
+metadata:
+  name: toggle-shop-app-service
+  labels:
+    app: toggle-shop
+spec:
+  type: NodePort
+  selector:
+    app: toggle-shop
+  ports:
+    - port: 3000
+      targetPort: app-port
+      nodePort: 30000
+---
+# Ingress for our application
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: toggle-shop-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: toggle-shop-app-service
+                port:
+                  number: 3000
