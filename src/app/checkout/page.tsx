@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer } from "react";
+import { useMemo, useReducer } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,78 +9,20 @@ import { useCart } from "@/hooks/use-cart";
 import Header from "@/components/Header";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tanstackMetaToHeader } from "@/libs/open-feature/evaluation-context";
-import { useFlag } from "@openfeature/react-sdk";
-
-interface FormState {
-  name: string;
-  email: string;
-  address: string;
-  card: string;
-}
-
-type FormAction = { type: "SET_FIELD"; field: keyof FormState; value: string };
-
-const formReducer = (state: FormState, action: FormAction): FormState => {
-  switch (action.type) {
-    case "SET_FIELD":
-      return {
-        ...state,
-        [action.field]: action.value,
-      };
-    default:
-      return state;
-  }
-};
+import { useFlag, useTrack } from "@openfeature/react-sdk";
 
 export default function Checkout() {
-  const router = useRouter();
-  const { cartItems, removeFromCart, clearCart, updateQuantity } = useCart();
+  const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { track } = useTrack();
   // This should be validated server-side in a real app
   const { value: freeShipping, isAuthoritative } = useFlag(
     "offer-free-shipping",
     false
   );
-  const [formData, dispatch] = useReducer(formReducer, {
-    name: "",
-    email: "",
-    address: "",
-    card: "",
-  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch({
-      type: "SET_FIELD",
-      field: e.target.name as keyof FormState,
-      value: e.target.value,
-    });
-  };
-
-  const queryClient = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: () => {
-      return fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...tanstackMetaToHeader(
-            queryClient.getDefaultOptions().mutations?.meta
-          ),
-        },
-        body: JSON.stringify({
-          items: cartItems,
-          customerInfo: formData,
-        }),
-      });
-    },
-    onError(error) {
-      console.error("Error submitting order:", error);
-      alert("There was an error submitting your order. Please try again.");
-    },
-    onSuccess() {
-      router.push("/order-success");
-      clearCart();
-    },
-  });
+  useMemo(() => {
+    track("visit_checkout");
+  }, [track]);
 
   const cartPrices = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -89,11 +31,6 @@ export default function Checkout() {
   const shippingPrice =
     freeShipping && isAuthoritative && cartPrices > 50 ? 0 : 10;
   const totalPrice = cartPrices + shippingPrice;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    mutation.mutate();
-  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -197,90 +134,165 @@ export default function Checkout() {
                     Total: ${totalPrice.toFixed(2)}
                   </div>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="address"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="card"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      id="card"
-                      name="card"
-                      value={formData.card}
-                      onChange={handleChange}
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:bg-slate-100 disabled:text-slate-300"
-                      disabled={cartItems.length === 0 || mutation.isPending}
-                    >
-                      {mutation.isPending ? "Placing Order..." : "Place Order"}
-                    </button>
-                  </div>
-                </form>
+                <CheckoutForm />
               </>
             )}
           </div>
         </div>
       </main>
     </div>
+  );
+}
+
+interface FormState {
+  name: string;
+  email: string;
+  address: string;
+  card: string;
+}
+
+type FormAction = { type: "SET_FIELD"; field: keyof FormState; value: string };
+
+const formReducer = (state: FormState, action: FormAction): FormState => {
+  switch (action.type) {
+    case "SET_FIELD":
+      return {
+        ...state,
+        [action.field]: action.value,
+      };
+    default:
+      return state;
+  }
+};
+
+function CheckoutForm() {
+  const router = useRouter();
+  const { cartItems, clearCart } = useCart();
+
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: () => {
+      return fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...tanstackMetaToHeader(
+            queryClient.getDefaultOptions().mutations?.meta
+          ),
+        },
+        body: JSON.stringify({
+          items: cartItems,
+          customerInfo: formData,
+        }),
+      });
+    },
+    onError(error) {
+      console.error("Error submitting order:", error);
+      alert("There was an error submitting your order. Please try again.");
+    },
+    onSuccess() {
+      router.push("/order-success");
+      clearCart();
+    },
+  });
+
+  const [formData, dispatch] = useReducer(formReducer, {
+    name: "",
+    email: "",
+    address: "",
+    card: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({
+      type: "SET_FIELD",
+      field: e.target.name as keyof FormState,
+      value: e.target.value,
+    });
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate();
+  };
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Name
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <label
+          htmlFor="address"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Address
+        </label>
+        <input
+          type="text"
+          id="address"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <label
+          htmlFor="card"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Card Number
+        </label>
+        <input
+          type="text"
+          id="card"
+          name="card"
+          value={formData.card}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:bg-slate-100 disabled:text-slate-300"
+          disabled={cartItems.length === 0 || mutation.isPending}
+        >
+          {mutation.isPending ? "Placing Order..." : "Place Order"}
+        </button>
+      </div>
+    </form>
   );
 }
