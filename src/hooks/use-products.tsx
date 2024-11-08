@@ -24,7 +24,7 @@ export function useProducts() {
 }
 
 export function useProduct(id: string) {
-  console.log("fetching products");
+  console.log(`fetching product ${id}`);
   const { data } = useSuspenseQuery({
     queryKey: ["products", id],
     queryFn: async ({ meta }): Promise<Product> => {

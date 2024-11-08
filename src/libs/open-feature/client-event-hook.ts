@@ -32,7 +32,6 @@ export class ClientEventHook implements Hook {
     hookContext: Readonly<HookContext<FlagValue>>,
     evaluationDetails: EvaluationDetails<FlagValue>
   ): void | Promise<void> {
-    console.log("after hook", hookContext);
     this.sendEvent({
       [ATTR_FEATURE_FLAG_KEY]: hookContext.flagKey,
       [ATTR_FEATURE_FLAG_SYSTEM]: hookContext.providerMetadata.name,
