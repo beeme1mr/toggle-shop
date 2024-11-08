@@ -2,6 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { Product } from "@/types/product";
+import { getBaseUrl } from "@/libs/url";
 import { tanstackMetaToHeader } from "@/libs/open-feature/evaluation-context";
 
 export function useProducts() {
@@ -9,7 +10,7 @@ export function useProducts() {
   const { data } = useSuspenseQuery({
     queryKey: ["products"],
     queryFn: async ({ meta }): Promise<Product[]> => {
-      const res = await fetch("http://localhost:3000/api/products", {
+      const res = await fetch(getBaseUrl() + "/api/products", {
         cache: "no-store",
         headers: tanstackMetaToHeader(meta),
       });
@@ -27,7 +28,7 @@ export function useProduct(id: string) {
   const { data } = useSuspenseQuery({
     queryKey: ["products", id],
     queryFn: async ({ meta }): Promise<Product> => {
-      const res = await fetch(`http://localhost:3000/api/products/${id}`, {
+      const res = await fetch(getBaseUrl() + `/api/products/${id}`, {
         cache: "no-store",
         headers: tanstackMetaToHeader(meta),
       });

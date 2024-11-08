@@ -15,7 +15,7 @@ import { events } from "@opentelemetry/api-events";
 import { logs } from "@opentelemetry/api-logs";
 import { EventLoggerProvider } from "@opentelemetry/sdk-events";
 
-const headers: Partial<Record<string, string>> = {};
+const headers: Record<string, string> = {};
 if (process.env.OTLP_AUTHORIZATION) {
   headers["Authorization"] = `Api-Token ${process.env.OTLP_AUTHORIZATION}`;
 }
@@ -61,4 +61,9 @@ export function register() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new EventLoggerProvider(logs.getLoggerProvider() as any)
   );
+
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("./register.openfeature");
+  }
 }

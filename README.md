@@ -62,7 +62,7 @@ A feature flag is used to ensure a smooth transition.
 To simulate the migration yourself, follow these steps:
 
 - configure OTLP export (see getting started)
-- start the load generator: `make run-db-migration`
+- start the load generator: `make run-load-gen`
 - observe the logs and metrics
 - update the `use-distributed-db` flag fractional distribution to be `["true", 25]` and `["false", 75]` in the [flags.json](./flags.json).
 - observe the logs and metrics.

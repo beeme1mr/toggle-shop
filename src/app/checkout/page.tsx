@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,17 +9,38 @@ import { useCart } from "@/hooks/use-cart";
 import Header from "@/components/Header";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tanstackMetaToHeader } from "@/libs/open-feature/evaluation-context";
-import { useSuspenseFlag } from "@openfeature/react-sdk";
+import { useFlag } from "@openfeature/react-sdk";
+
+interface FormState {
+  name: string;
+  email: string;
+  address: string;
+  card: string;
+}
+
+type FormAction = { type: "SET_FIELD"; field: keyof FormState; value: string };
+
+const formReducer = (state: FormState, action: FormAction): FormState => {
+  switch (action.type) {
+    case "SET_FIELD":
+      return {
+        ...state,
+        [action.field]: action.value,
+      };
+    default:
+      return state;
+  }
+};
 
 export default function Checkout() {
   const router = useRouter();
   const { cartItems, removeFromCart, clearCart, updateQuantity } = useCart();
   // This should be validated server-side in a real app
-  const { value: freeShipping, isAuthoritative } = useSuspenseFlag(
+  const { value: freeShipping, isAuthoritative } = useFlag(
     "offer-free-shipping",
     false
   );
-  const [formData, setFormData] = useState({
+  const [formData, dispatch] = useReducer(formReducer, {
     name: "",
     email: "",
     address: "",
@@ -27,7 +48,11 @@ export default function Checkout() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    dispatch({
+      type: "SET_FIELD",
+      field: e.target.name as keyof FormState,
+      value: e.target.value,
+    });
   };
 
   const queryClient = useQueryClient();

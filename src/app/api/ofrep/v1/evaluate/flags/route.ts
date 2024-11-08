@@ -1,24 +1,32 @@
+"use server";
+
 import { FlagdCore } from "@openfeature/flagd-core";
 import { readFileSync, watchFile, promises as fsPromises } from "node:fs";
+
 import hash from "object-hash";
 
 const flagdCore = new FlagdCore();
 
-const filename = process.cwd() + "/flags.json";
-const encoding = "utf8";
+if (process.env.FLAGD_OFFLINE_FLAG_SOURCE_PATH) {
+  console.log("configuring local OFREP API");
+  const filename = process.env.FLAGD_OFFLINE_FLAG_SOURCE_PATH;
+  const encoding = "utf8";
 
-const flagConfig = readFileSync(filename, encoding);
-flagdCore.setConfigurations(flagConfig);
+  const flagConfig = readFileSync(filename, encoding);
+  flagdCore.setConfigurations(flagConfig);
 
-watchFile(filename, async () => {
-  console.log("File changed");
-  try {
-    const flagConfig = await fsPromises.readFile(filename, encoding);
-    flagdCore.setConfigurations(flagConfig);
-  } catch (err) {
-    console.error(err);
-  }
-});
+  watchFile(filename, async () => {
+    console.log("File changed");
+    try {
+      const flagConfig = await fsPromises.readFile(filename, encoding);
+      flagdCore.setConfigurations(flagConfig);
+    } catch (err) {
+      console.error(err);
+    }
+  });
+} else {
+  console.log("skipping local OFREP API configuration");
+}
 
 export async function POST(request: Request) {
   const context = await request.json();

@@ -1,3 +1,5 @@
+"use server";
+
 import { NextResponse } from "next/server";
 import { getConnection } from "@/db";
 import { OpenFeature } from "@openfeature/server-sdk";

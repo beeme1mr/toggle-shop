@@ -131,9 +131,9 @@ export default function Contact() {
                     Business Hours
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    Monday - Friday: 9am - 5pm PST
+                    Monday - Friday: 9am - 5pm EST
                     <br />
-                    Saturday: 10am - 4pm PST
+                    Saturday: 10am - 4pm EST
                     <br />
                     Sunday: Closed
                   </dd>

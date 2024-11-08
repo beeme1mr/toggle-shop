@@ -1,3 +1,5 @@
+"use server";
+
 import { events } from "@opentelemetry/api-events";
 
 const featureFlagTrack = events.getEventLogger("feature_flag");
