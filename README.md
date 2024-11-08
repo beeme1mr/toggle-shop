@@ -76,3 +76,37 @@ To simulate the migration yourself, follow these steps:
 If all goes well, you should see the migration complete without any issues.
 
 ![telemetry](./public/img/telemetry.png)
+
+## Kubernetes
+
+To run the ToggleShop in a Kind cluster:
+
+Create the cluster with the supplied definition:
+
+```sh
+kind create cluster --config kubernetes/cluster.yaml
+```
+
+Install cert manager in the cluster (required for the OpenFeature operator):
+
+```sh
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml && kubectl wait --timeout=60s --for condition=Available=True deploy --all -n 'cert-manager'
+```
+
+Install the nginx controller:
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml && kubectl wait --timeout=60s --for condition=Available=True deploy --all -n 'ingress-nginx'
+```
+
+Install the OpenFeature operator:
+
+```sh
+helm repo add openfeature https://open-feature.github.io/open-feature-operator/ && helm repo update && helm upgrade --install open-feature-operator openfeature/open-feature-operator
+```
+
+Deploy the ToggleShop and supporting infrastructure:
+
+```sh
+kubectl -n default apply -f kubernetes/toggle-shop.yaml && kubectl wait --timeout=60s deployment --for condition=Available=True -l 'app=toggle-shop' -n 'default'
+```
